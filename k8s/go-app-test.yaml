@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: go-app-test
+spec:
+  imagePullSecrets:
+    - name: ghcr-secret
+  containers:
+    - name: go-app-test
+      image: ghcr.io/promf/agapov-pract1-bsbo16-23/app:latest
+  restartPolicy: Never

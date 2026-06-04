@@ -1,0 +1,56 @@
+name: Validate Kubernetes Manifests
+
+on:
+  push:
+    paths:
+      - 'k8s/*.yaml'
+      - '.github/workflows/k8s-validate.yml'
+      - '.yamllint.yml'
+  pull_request:
+    paths:
+      - 'k8s/*.yaml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lint YAML files
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: k8s/
+          config_file: .yamllint.yml
+
+      - name: Install kubeconform
+        run: |
+          wget -q https://github.com/yannh/kubeconform/releases/download/v0.6.4/kubeconform-linux-amd64.tar.gz
+          tar xf kubeconform-linux-amd64.tar.gz
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate Kubernetes manifests with kubeconform
+        run: |
+          kubeconform \
+            -summary \
+            -ignore-missing-schemas \
+            -kubernetes-version 1.28.0 \
+            k8s/*.yaml
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Dry-run apply (client-side validation)
+        run: |
+          # Создаём минимальный kubeconfig чтобы kubectl не ругался
+          kubectl config set-cluster fake --server=https://localhost:8080
+          kubectl config set-context fake --cluster=fake
+          kubectl config use-context fake
+
+          for file in k8s/*.yaml; do
+            echo "--- Dry-run: $file ---"
+            kubectl apply --dry-run=client --validate=false -f "$file"
+          done
