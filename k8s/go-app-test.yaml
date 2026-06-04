@@ -9,4 +9,4 @@ spec:
     - name: go-app-test
       image: ghcr.io/promf/agapov-pract1-bsbo16-23/app:latest
   restartPolicy: Never
-  
+
