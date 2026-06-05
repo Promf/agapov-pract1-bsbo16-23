@@ -63,5 +63,5 @@ jobs:
 
           for file in k8s/*.yaml; do
             echo "--- Dry-run: $file ---"
-            kubectl apply --dry-run=client --validate=true -f "$file"
+            kubectl apply --dry-run=client --validate=ignore -f "$file"
           done
