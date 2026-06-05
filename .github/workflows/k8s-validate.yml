@@ -43,15 +43,12 @@ jobs:
         with:
           version: 'v1.28.0'
 
-      - name: Kubectl dry-run (safe mode)
+      - name: Validate Kubernetes YAML 
         run: |
-          export KUBECONFIG=/dev/null
+          curl -sSL -o kubeconform.tar.gz \
+            https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
 
-          for file in k8s/*.yaml; do
-            echo "--- Dry-run: $file ---"
+          tar -xzf kubeconform.tar.gz
+          chmod +x kubeconform
 
-            kubectl apply \
-              --dry-run=client \
-              --validate=true \
-              -f "$file" || exit 1
-          done
+          ./kubeconform -strict -summary k8s/*.yaml
