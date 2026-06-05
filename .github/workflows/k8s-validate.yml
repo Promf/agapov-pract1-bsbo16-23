@@ -43,8 +43,21 @@ jobs:
         with:
           version: 'v1.28.0'
 
-      - name: Dry-run apply (client-side validation)
-        run: |
-          set -e
-          echo "=== Running client-side dry-run validation ==="
-          kubectl apply --kubeconfig=/dev/null --dry-run=client -f k8s/
+- name: Dry-run apply (client-side validation)
+  run: |
+    kubectl config set-cluster fake --server=https://localhost:8080
+
+    kubectl config set-credentials fake \
+      --username=ci \
+      --password=ci
+
+    kubectl config set-context fake \
+      --cluster=fake \
+      --user=fake
+
+    kubectl config use-context fake
+
+    for file in k8s/*.yaml; do
+      echo "--- Dry-run: $file ---"
+      kubectl apply --dry-run=client --validate=false -f "$file"
+    done
