@@ -45,13 +45,6 @@ jobs:
 
       - name: Dry-run apply (client-side validation)
         run: |
-          # Создаём минимальный фейковый контекст, чтобы kubectl не выдавал ошибку отсутствия конфига
-          kubectl config set-cluster offline --server=https://localhost:8080
-          kubectl config set-context offline --cluster=offline
-          kubectl config use-context offline
-
-          for file in k8s/*.yaml; do
-            echo "--- Dry-run: $file ---"
-            # Замена 'apply' на 'create' полностью отключает сетевой API Discovery
-            kubectl create --dry-run=client -f "$file"
-          done
+          set -e
+          echo "=== Running client-side dry-run validation ==="
+          kubectl apply --kubeconfig=/dev/null --dry-run=client -f k8s/
