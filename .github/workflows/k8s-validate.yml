@@ -43,15 +43,15 @@ jobs:
         with:
           version: 'v1.28.0'
 
-- name: Kubectl dry-run (safe mode)
-  run: |
-    export KUBECONFIG=/dev/null
+      - name: Kubectl dry-run (safe mode)
+        run: |
+          export KUBECONFIG=/dev/null
 
-    for file in k8s/*.yaml; do
-      echo "--- Dry-run: $file ---"
+          for file in k8s/*.yaml; do
+            echo "--- Dry-run: $file ---"
 
-      kubectl apply \
-        --dry-run=client \
-        --validate=true \
-        -f "$file" || exit 1
-    done
+            kubectl apply \
+              --dry-run=client \
+              --validate=true \
+              -f "$file" || exit 1
+          done
