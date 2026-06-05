@@ -43,25 +43,25 @@ jobs:
         with:
           version: 'v1.28.0'
 
-- name: Dry-run apply (client-side validation)
-  run: |
-    export KUBECONFIG=/tmp/kubeconfig-ci
+      - name: Dry-run apply (client-side validation)
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig-ci
 
-    kubectl config set-cluster fake \
-      --server=https://127.0.0.1:6443 \
-      --insecure-skip-tls-verify=true
+          kubectl config set-cluster fake \
+            --server=https://127.0.0.1:6443 \
+            --insecure-skip-tls-verify=true
 
-    kubectl config set-credentials fake-user \
-      --username=ci \
-      --password=ci
+          kubectl config set-credentials fake-user \
+            --username=ci \
+            --password=ci
 
-    kubectl config set-context fake-context \
-      --cluster=fake \
-      --user=fake-user
+          kubectl config set-context fake-context \
+            --cluster=fake \
+            --user=fake-user
 
-    kubectl config use-context fake-context
+          kubectl config use-context fake-context
 
-    for file in k8s/*.yaml; do
-      echo "--- Dry-run: $file ---"
-      kubectl apply --dry-run=client --validate=true -f "$file"
-    done
+          for file in k8s/*.yaml; do
+            echo "--- Dry-run: $file ---"
+            kubectl apply --dry-run=client --validate=true -f "$file"
+          done
