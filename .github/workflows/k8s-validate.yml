@@ -45,17 +45,13 @@ jobs:
 
       - name: Dry-run apply (client-side validation)
         run: |
-          # Создаем абсолютно пустой валидный конфиг без серверов
-          mkdir -p ~/.kube
-          echo "apiVersion: v1
-          kind: Config
-          clusters: []
-          contexts: []
-          current-context: ''" > ~/.kube/config
+          # Создаём минимальный фейковый контекст, чтобы kubectl не выдавал ошибку отсутствия конфига
+          kubectl config set-cluster offline --server=https://localhost:8080
+          kubectl config set-context offline --cluster=offline
+          kubectl config use-context offline
 
           for file in k8s/*.yaml; do
             echo "--- Dry-run: $file ---"
-            # Флаг --dry-run=client гарантирует работу без сервера. 
-            # Если kubectl все равно лезет в сеть, добавляем --validate=ignore
-            kubectl apply --dry-run=client --validate=ignore -f "$file"
+            # Замена 'apply' на 'create' полностью отключает сетевой API Discovery
+            kubectl create --dry-run=client -f "$file"
           done
